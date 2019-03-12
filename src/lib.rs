@@ -82,6 +82,26 @@ impl Vec3 {
         let z = self.x() * v.y() - self.y() * v.x();
         Vec3(x, y, z)
     }
+
+    pub fn zero() -> Vec3 {
+        Vec3(0.0, 0.0, 0.0)
+    }
+
+    pub fn ones() -> Vec3 {
+        Vec3(1.0, 1.0, 1.0)
+    }
+
+    pub fn one_x() -> Vec3 {
+        Vec3(1.0, 0.0, 0.0)
+    }
+
+    pub fn one_y() -> Vec3 {
+        Vec3(1.0, 0.0, 0.0)
+    }
+
+    pub fn one_z() -> Vec3 {
+        Vec3(1.0, 0.0, 0.0)
+    }
 }
 
 impl Add for Vec3 {
