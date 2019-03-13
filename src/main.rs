@@ -4,7 +4,7 @@
 use rt::*;
 use std::f64;
 
-fn color<T: Hitable>(ray: &Ray, world: &T) -> Vec3 {
+fn color<T: Hitable>(ray: &Ray, world: T) -> Vec3 {
     if let Some(hit) = world.hit(ray, 0.0, f64::MAX) {
         // Visualise normals for hit objects.
         let normal = Vec3::unit_vector(hit.normal);
@@ -21,8 +21,8 @@ fn color<T: Hitable>(ray: &Ray, world: &T) -> Vec3 {
 }
 
 fn main() {
-    let nx = 200;
-    let ny = 100;
+    let nx = 600;
+    let ny = 300;
     println!("P3 {} {} 255", nx, ny);
 
     // Describe the plane.
@@ -36,17 +36,13 @@ fn main() {
         center: Vec3(0.0, 0.0, -1.0),
         radius: 0.5,
     };
-    // let s2 = Sphere {
-    //     center: Vec3(0.7, 0.0, -1.0),
-    //     radius: 0.3,
-    // };
+
     let s2 = Sphere {
         center: Vec3(0.0, -100.5, -1.0),
         radius: 100.0,
     };
 
-
-    let world = vec![s1, s2];
+    let world = [s1, s2];
 
     for j in (0..=ny - 1).rev() {
         for i in 0..nx {
