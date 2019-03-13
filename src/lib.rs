@@ -2,6 +2,67 @@ use std::ops::*;
 
 type Elem = f64;
 
+#[derive(Debug, Copy, Clone)]
+pub struct HitRecord {
+    pub t: Elem, // time (i.e. 't' parameter value when we hit)
+    pub p: Vec3, // point at which we hit the Hitable
+    pub normal: Vec3, // normal vector at the hit point
+}
+
+pub trait Hitable {
+    fn hit(&self, ray: &Ray, tmin: Elem, tmax: Elem) -> Option<HitRecord>;
+}
+
+pub struct Sphere {
+    pub center: Vec3,
+    pub radius: Elem,
+}
+
+impl Hitable for Sphere {
+    fn hit(&self, ray: &Ray, t_min: Elem, t_max: Elem) -> Option<HitRecord> {
+        let oc = ray.origin() - self.center;
+        let dir = ray.direction();
+
+        let a = dir.dot(&dir);
+        let b = oc.dot(&dir);
+        let c = oc.dot(&oc) - self.radius * self.radius;
+        let discriminant = b * b - a * c;
+
+        if discriminant > 0.0 {
+            let t = (-b - discriminant.sqrt()) / a;
+            if t > t_min && t < t_max {
+                let p = ray.point_at_parameter(t);
+                return Some(HitRecord {
+                    t: t,
+                    p: p,
+                    normal: Vec3::unit_vector(p - self.center),
+                });
+            }
+
+            let t = (-b + discriminant.sqrt()) / a;
+            if t > t_min && t < t_max {
+                let p = ray.point_at_parameter(t);
+                return Some(HitRecord {
+                    t: t,
+                    p: p,
+                    normal: Vec3::unit_vector(p - self.center),
+                });
+            }
+        }
+
+        None
+    }
+}
+
+// FIXME: define it for any type providing iterator on hitables.
+impl Hitable for Vec<Sphere> {
+    fn hit(&self, ray: &Ray, t_min: Elem, t_max: Elem) -> Option<HitRecord> {
+        self.iter()
+            .filter_map(|h| h.hit(ray, t_min, t_max))
+            .min_by(|x, y| x.t.partial_cmp(&y.t).unwrap())
+    }
+}
+
 pub struct Ray {
     from: Vec3,
     to: Vec3,
@@ -21,7 +82,7 @@ impl Ray {
     }
 
     pub fn point_at_parameter(&self, b: Elem) -> Vec3 {
-        self.from + self.to * b
+        self.from + b * self.to
     }
 }
 
@@ -96,11 +157,11 @@ impl Vec3 {
     }
 
     pub fn one_y() -> Vec3 {
-        Vec3(1.0, 0.0, 0.0)
+        Vec3(0.0, 1.0, 0.0)
     }
 
     pub fn one_z() -> Vec3 {
-        Vec3(1.0, 0.0, 0.0)
+        Vec3(0.0, 0.0, 1.0)
     }
 }
 
