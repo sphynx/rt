@@ -9,7 +9,7 @@ pub struct HitRecord {
 }
 
 pub trait Hitable {
-    fn hit(self, ray: &Ray, tmin: Elem, tmax: Elem) -> Option<HitRecord>;
+    fn hit(&self, ray: &Ray, tmin: Elem, tmax: Elem) -> Option<HitRecord>;
 }
 
 pub struct Sphere {
@@ -17,8 +17,8 @@ pub struct Sphere {
     pub radius: Elem,
 }
 
-impl Hitable for &Sphere {
-    fn hit(self, ray: &Ray, t_min: Elem, t_max: Elem) -> Option<HitRecord> {
+impl Hitable for Sphere {
+    fn hit(&self, ray: &Ray, t_min: Elem, t_max: Elem) -> Option<HitRecord> {
         let oc = ray.origin() - self.center;
         let dir = ray.direction();
 
@@ -53,13 +53,9 @@ impl Hitable for &Sphere {
     }
 }
 
-impl<T> Hitable for T
-where
-    T: IntoIterator,
-    T::Item: Hitable,
-{
-    fn hit(self, ray: &Ray, t_min: Elem, t_max: Elem) -> Option<HitRecord> {
-        self.into_iter()
+impl<T: Hitable> Hitable for [T] {
+    fn hit(&self, ray: &Ray, t_min: Elem, t_max: Elem) -> Option<HitRecord> {
+        self.iter()
             .filter_map(|h| h.hit(ray, t_min, t_max))
             .min_by(|x, y| x.time.partial_cmp(&y.time).unwrap())
     }
@@ -87,27 +83,3 @@ impl Ray {
         self.from + b * self.to
     }
 }
-
-// impl<T, U> Hitable for &T
-// where
-//     T: IntoIterator<Item = U>,
-//     U: Hitable,
-// {
-//     fn hit(self, ray: &Ray, t_min: Elem, t_max: Elem) -> Option<HitRecord> {
-//         self.into_iter()
-//             .filter_map(|h| h.hit(ray, t_min, t_max))
-//             .min_by(|x, y| x.t.partial_cmp(&y.t).unwrap())
-//     }
-// }
-
-// FIXME: define it for any type providing iterator on hitables.
-// impl<T, U> Hitable for T
-//     where
-//     T: Iterator<Item=U>,
-//     U: Hitable,
-// {
-//     fn hit(&self, ray: &Ray, t_min: Elem, t_max: Elem) -> Option<HitRecord> {
-//         self.filter_map(|h| h.hit(ray, t_min, t_max))
-//             .min_by(|x, y| x.t.partial_cmp(&y.t).unwrap())
-//     }
-// }

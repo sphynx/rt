@@ -4,7 +4,7 @@
 use rt::*;
 use std::f64;
 
-fn color<T: Hitable>(ray: &Ray, world: T) -> Vec3 {
+fn color<T: Hitable + ?Sized>(ray: &Ray, world: &T) -> Vec3 {
     if let Some(hit) = world.hit(ray, 0.0, f64::MAX) {
         // Visualise normals for hit objects.
         let normal = Vec3::unit_vector(hit.normal);
@@ -50,7 +50,7 @@ fn main() {
             let v = j as f64 / ny as f64;
             let dir = lower_left_corner + u * horizontal + v * vertical;
             let r = Ray::new(origin, dir);
-            let c = 255.99 * color(&r, &world);
+            let c = 255.99 * color(&r, &world[..]);
             println!("{} {} {}", c.r() as u32, c.g() as u32, c.b() as u32);
         }
     }
