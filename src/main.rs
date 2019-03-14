@@ -1,15 +1,28 @@
 // This is directly based on Peter Shirley's "Ray Tracing in One
 // Weekend".
 
-use rand::Rng;
+use rand::prelude::*;
 use rt::*;
 use std::f64;
 
-fn color<T: Hitable + ?Sized>(ray: &Ray, world: &T) -> Vec3 {
-    if let Some(hit) = world.hit(ray, 0.0, f64::MAX) {
-        // Visualise normals for hit objects.
-        let normal = Vec3::unit_vector(hit.normal);
-        0.5 * (normal + Vec3::ones())
+#[allow(dead_code)]
+fn random_in_unit_sphere(rng: &mut ThreadRng) -> Vec3 {
+    let mut v;
+    loop {
+        v = 2.0 * Vec3(rng.gen(), rng.gen(), rng.gen()) - Vec3::ones();
+        if v.length_squared() < 1.0 {
+            break;
+        }
+    }
+    v
+}
+
+fn color<T: Hitable + ?Sized>(rng: &mut ThreadRng, ray: &Ray, world: &T) -> Vec3 {
+    if let Some(hit) = world.hit(ray, 0.001, f64::MAX) {
+        // Diffuse.
+        let target = hit.point + hit.normal + random_in_unit_sphere(rng);
+        let new_ray = Ray::new(hit.point, target - hit.point);
+        0.5 * color(rng, &new_ray, world)
     } else {
         // Draw gradient background.
         let unit_direction = Vec3::unit_vector(ray.direction());
@@ -26,7 +39,7 @@ fn main() {
 
     let nx = 600;
     let ny = 300;
-    let ns = 100;
+    let ns = 50;
 
     println!("P3 {} {} 255", nx, ny);
 
@@ -52,10 +65,11 @@ fn main() {
                 let u = (i as f64 + rng.gen::<f64>()) / nx as f64;
                 let v = (j as f64 + rng.gen::<f64>()) / ny as f64;
                 let r = camera.get_ray(u, v);
-                col += color(&r, &world[..]);
+                col += color(&mut rng, &r, &world[..]);
             }
 
             col /= ns as f64;
+            col.sqrt_coords(); // Basic gamma correction.
             col *= 255.99;
 
             println!("{} {} {}", col.r() as u32, col.g() as u32, col.b() as u32);
