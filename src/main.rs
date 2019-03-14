@@ -1,6 +1,7 @@
 // This is directly based on Peter Shirley's "Ray Tracing in One
 // Weekend".
 
+use rand::Rng;
 use rt::*;
 use std::f64;
 
@@ -21,15 +22,13 @@ fn color<T: Hitable + ?Sized>(ray: &Ray, world: &T) -> Vec3 {
 }
 
 fn main() {
+    let mut rng = rand::thread_rng();
+
     let nx = 600;
     let ny = 300;
-    println!("P3 {} {} 255", nx, ny);
+    let ns = 100;
 
-    // Describe the plane.
-    let lower_left_corner = Vec3(-2.0, -1.0, -1.0);
-    let horizontal = Vec3(4.0, 0.0, 0.0);
-    let vertical = Vec3(0.0, 2.0, 0.0);
-    let origin = Vec3::zero();
+    println!("P3 {} {} 255", nx, ny);
 
     // Describe the world.
     let s1 = Sphere {
@@ -44,14 +43,22 @@ fn main() {
 
     let world = [s1, s2];
 
+    let camera = Camera::new();
+
     for j in (0..=ny - 1).rev() {
         for i in 0..nx {
-            let u = i as f64 / nx as f64;
-            let v = j as f64 / ny as f64;
-            let dir = lower_left_corner + u * horizontal + v * vertical;
-            let r = Ray::new(origin, dir);
-            let c = 255.99 * color(&r, &world[..]);
-            println!("{} {} {}", c.r() as u32, c.g() as u32, c.b() as u32);
+            let mut col = Vec3::zero();
+            for _ in 0..ns {
+                let u = (i as f64 + rng.gen::<f64>()) / nx as f64;
+                let v = (j as f64 + rng.gen::<f64>()) / ny as f64;
+                let r = camera.get_ray(u, v);
+                col += color(&r, &world[..]);
+            }
+
+            col /= ns as f64;
+            col *= 255.99;
+
+            println!("{} {} {}", col.r() as u32, col.g() as u32, col.b() as u32);
         }
     }
 }
