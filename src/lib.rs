@@ -20,7 +20,7 @@ pub struct HitRecord<'a> {
     pub normal: Vec3,
 
     /// Reference to material at hit point.
-    pub material: &'a Box<dyn Material>,
+    pub material: &'a dyn Material,
 }
 
 /// Abstracts away details of materials affecting how the rays
@@ -49,13 +49,13 @@ impl Material for Lambertian {
     }
 }
 
-pub struct Sphere {
+pub struct Sphere<'a> {
     pub center: Vec3,
     pub radius: Elem,
-    pub material: Box<dyn Material>,
+    pub material: &'a dyn Material,
 }
 
-impl Hitable for Sphere {
+impl<'a> Hitable for Sphere<'a> {
     fn hit(&self, ray: &Ray, t_min: Elem, t_max: Elem) -> Option<HitRecord> {
         let oc = ray.origin() - self.center;
         let dir = ray.direction();
@@ -72,7 +72,7 @@ impl Hitable for Sphere {
                     time: t,
                     point: p,
                     normal: Vec3::unit_vector(p - self.center),
-                    material: &self.material,
+                    material: self.material,
                 })
             };
 

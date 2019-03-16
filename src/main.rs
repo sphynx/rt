@@ -40,6 +40,7 @@ fn main() {
     let lambertian1 = Lambertian {
         albedo: Vec3(0.8, 0.3, 0.3),
     };
+
     let lambertian2 = Lambertian {
         albedo: Vec3(0.8, 0.8, 0.0),
     };
@@ -48,13 +49,13 @@ fn main() {
     let s1 = Sphere {
         center: Vec3(0.0, 0.0, -1.0),
         radius: 0.5,
-        material: Box::new(lambertian1),
+        material: &lambertian1,
     };
 
     let s2 = Sphere {
         center: Vec3(0.0, -100.5, -1.0),
         radius: 100.0,
-        material: Box::new(lambertian2),
+        material: &lambertian2
     };
 
     let world = [s1, s2];
