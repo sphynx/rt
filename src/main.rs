@@ -5,7 +5,6 @@ use rand::prelude::*;
 use rt::*;
 use std::f64;
 
-#[allow(dead_code)]
 fn random_in_unit_sphere(rng: &mut ThreadRng) -> Vec3 {
     let mut v;
     loop {
@@ -61,6 +60,8 @@ fn main() {
     for j in (0..=ny - 1).rev() {
         for i in 0..nx {
             let mut col = Vec3::zero();
+
+            // Antialiasing by averaging of random samples.
             for _ in 0..ns {
                 let u = (i as f64 + rng.gen::<f64>()) / nx as f64;
                 let v = (j as f64 + rng.gen::<f64>()) / ny as f64;
