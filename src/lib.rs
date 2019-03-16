@@ -29,12 +29,17 @@ pub trait Material {
     fn scatter(&self, ray: &Ray, hr: &HitRecord) -> MaterialResponse;
 }
 
+/// How the material responses to a ray.
 pub enum MaterialResponse {
     Scattered { attenuation: Vec3, ray: Ray },
     Absorbed,
 }
 
+/// Lambertian defines diffused materials which reflect light
+/// randomly.
 pub struct Lambertian {
+    /// Defines object own color. Hitting rays will be attenuated
+    /// based on this parameter.
     pub albedo: Vec3,
 }
 
@@ -49,6 +54,7 @@ impl Material for Lambertian {
     }
 }
 
+/// Sphere object (has center, radius and material).
 pub struct Sphere<'a> {
     pub center: Vec3,
     pub radius: Elem,
@@ -100,6 +106,8 @@ impl<T: Hitable> Hitable for [T] {
     }
 }
 
+/// Defines a ray of light by using origin (a point) and a direction
+/// (a vector). Both are represented as `Vec3` though.
 pub struct Ray {
     from: Vec3,
     to: Vec3,
@@ -123,6 +131,8 @@ impl Ray {
     }
 }
 
+/// Defines the screen on which scene is projected and the origin
+/// (i.e. the point of view).
 pub struct Camera {
     origin: Vec3,
     lower_left_corner: Vec3,

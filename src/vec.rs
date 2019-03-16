@@ -1,7 +1,9 @@
 use std::ops::*;
 
+/// Type of vector elements (currently it's f64).
 pub type Elem = f64;
 
+/// 3D vector.
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Vec3(pub Elem, pub Elem, pub Elem);
 
