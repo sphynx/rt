@@ -2,32 +2,27 @@
 // Weekend".
 
 use rand::prelude::*;
+use rt::MaterialResponse::*;
 use rt::*;
 use std::f64;
 
-fn random_in_unit_sphere(rng: &mut ThreadRng) -> Vec3 {
-    let mut v;
-    loop {
-        v = 2.0 * Vec3(rng.gen(), rng.gen(), rng.gen()) - Vec3::ones();
-        if v.length_squared() < 1.0 {
-            break;
-        }
-    }
-    v
-}
-
-fn color<T: Hitable + ?Sized>(rng: &mut ThreadRng, ray: &Ray, world: &T) -> Vec3 {
+fn color<T: Hitable + ?Sized>(ray: &Ray, world: &T, depth: u32) -> Vec3 {
     if let Some(hit) = world.hit(ray, 0.001, f64::MAX) {
-        // Diffuse.
-        let target = hit.point + hit.normal + random_in_unit_sphere(rng);
-        let new_ray = Ray::new(hit.point, target - hit.point);
-        0.5 * color(rng, &new_ray, world)
+        if depth < 50 {
+            match hit.material.scatter(ray, &hit) {
+                Absorbed => Vec3::zero(),
+                Scattered { attenuation, ray } => attenuation * color(&ray, world, depth + 1),
+            }
+        } else {
+            Vec3::zero()
+        }
     } else {
         // Draw gradient background.
         let unit_direction = Vec3::unit_vector(ray.direction());
         let t = 0.5 * (unit_direction.y() + 1.0);
         let white = Vec3(1.0, 1.0, 1.0);
         let blue = Vec3(0.5, 0.7, 1.0);
+
         // Interpolate between white and "blue".
         (1.0 - t) * white + t * blue
     }
@@ -42,15 +37,24 @@ fn main() {
 
     println!("P3 {} {} 255", nx, ny);
 
+    let lambertian1 = Lambertian {
+        albedo: Vec3(0.8, 0.3, 0.3),
+    };
+    let lambertian2 = Lambertian {
+        albedo: Vec3(0.8, 0.8, 0.0),
+    };
+
     // Describe the world.
     let s1 = Sphere {
         center: Vec3(0.0, 0.0, -1.0),
         radius: 0.5,
+        material: Box::new(lambertian1),
     };
 
     let s2 = Sphere {
         center: Vec3(0.0, -100.5, -1.0),
         radius: 100.0,
+        material: Box::new(lambertian2),
     };
 
     let world = [s1, s2];
@@ -66,7 +70,7 @@ fn main() {
                 let u = (i as f64 + rng.gen::<f64>()) / nx as f64;
                 let v = (j as f64 + rng.gen::<f64>()) / ny as f64;
                 let r = camera.get_ray(u, v);
-                col += color(&mut rng, &r, &world[..]);
+                col += color(&r, &world[..], 0);
             }
 
             col /= ns as f64;
