@@ -55,7 +55,7 @@ impl Vec3 {
         self.x() * v.x() + self.y() * v.y() + self.z() * v.z()
     }
 
-    pub fn ddot(v: Vec3, w: Vec3) -> Elem {
+    pub fn dot2(v: Vec3, w: Vec3) -> Elem {
         v.x() * w.x() + v.y() * w.y() + v.z() * w.z()
     }
 

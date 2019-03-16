@@ -58,18 +58,33 @@ impl Material for Lambertian {
 pub struct Metal {
     /// Defines object's own color. Hitting rays will be attenuated
     /// based on this parameter.
-    pub albedo: Vec3,
+    albedo: Vec3,
+
+    /// Amount of randomization of the reflection (0 - no
+    /// randomization, 1 - maximum allowed randomization).
+    fuzz: Elem,
+}
+
+impl Metal {
+    pub fn new(albedo: Vec3, fuzz: Elem) -> Self {
+        Metal {
+            albedo,
+            fuzz: if fuzz > 1.0 { 1.0 } else { fuzz },
+        }
+    }
 }
 
 impl Material for Metal {
     fn scatter(&self, ray: &Ray, hr: &HitRecord) -> MaterialResponse {
         let reflected_dir = Metal::reflect(Vec3::unit_vector(ray.direction()), hr.normal);
-        let sc_ray = Ray::new(hr.point, reflected_dir);
-        let reflected = reflected_dir.dot(&hr.normal) > 0.0;
-        if reflected {
+        let scattered = Ray::new(
+            hr.point,
+            reflected_dir + self.fuzz * random_in_unit_sphere(),
+        );
+        if scattered.direction().dot(&hr.normal) > 0.0 {
             MaterialResponse::Scattered {
                 attenuation: self.albedo,
-                ray: sc_ray
+                ray: scattered,
             }
         } else {
             MaterialResponse::Absorbed
@@ -79,7 +94,7 @@ impl Material for Metal {
 
 impl Metal {
     fn reflect(v: Vec3, normal: Vec3) -> Vec3 {
-        v - 2.0 * Vec3::ddot(v, normal) * normal
+        v - 2.0 * Vec3::dot2(v, normal) * normal
     }
 }
 
