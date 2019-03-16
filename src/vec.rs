@@ -55,6 +55,10 @@ impl Vec3 {
         self.x() * v.x() + self.y() * v.y() + self.z() * v.z()
     }
 
+    pub fn ddot(v: Vec3, w: Vec3) -> Elem {
+        v.x() * w.x() + v.y() * w.y() + v.z() * w.z()
+    }
+
     pub fn cross(&self, v: &Vec3) -> Vec3 {
         let x = self.y() * v.z() - self.z() * v.y();
         let y = -(self.x() * v.z() - self.z() * v.x());

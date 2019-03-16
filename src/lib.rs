@@ -38,7 +38,7 @@ pub enum MaterialResponse {
 /// Lambertian defines diffused materials which reflect light
 /// randomly.
 pub struct Lambertian {
-    /// Defines object own color. Hitting rays will be attenuated
+    /// Defines object's own color. Hitting rays will be attenuated
     /// based on this parameter.
     pub albedo: Vec3,
 }
@@ -51,6 +51,35 @@ impl Material for Lambertian {
             attenuation: self.albedo,
             ray: sc_ray,
         }
+    }
+}
+
+/// Metal surfaces, reflecting light deterministically.
+pub struct Metal {
+    /// Defines object's own color. Hitting rays will be attenuated
+    /// based on this parameter.
+    pub albedo: Vec3,
+}
+
+impl Material for Metal {
+    fn scatter(&self, ray: &Ray, hr: &HitRecord) -> MaterialResponse {
+        let reflected_dir = Metal::reflect(Vec3::unit_vector(ray.direction()), hr.normal);
+        let sc_ray = Ray::new(hr.point, reflected_dir);
+        let reflected = reflected_dir.dot(&hr.normal) > 0.0;
+        if reflected {
+            MaterialResponse::Scattered {
+                attenuation: self.albedo,
+                ray: sc_ray
+            }
+        } else {
+            MaterialResponse::Absorbed
+        }
+    }
+}
+
+impl Metal {
+    fn reflect(v: Vec3, normal: Vec3) -> Vec3 {
+        v - 2.0 * Vec3::ddot(v, normal) * normal
     }
 }
 

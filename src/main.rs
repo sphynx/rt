@@ -45,6 +45,14 @@ fn main() {
         albedo: Vec3(0.8, 0.8, 0.0),
     };
 
+    let metal1 = Metal {
+        albedo: Vec3(0.8, 0.6, 0.2),
+    };
+
+    let metal2 = Metal {
+        albedo: Vec3(0.8, 0.8, 0.8),
+    };
+
     // Describe the world.
     let s1 = Sphere {
         center: Vec3(0.0, 0.0, -1.0),
@@ -58,7 +66,19 @@ fn main() {
         material: &lambertian2
     };
 
-    let world = [s1, s2];
+    let s3 = Sphere {
+        center: Vec3(1.0, 0.0, -1.0),
+        radius: 0.5,
+        material: &metal1
+    };
+
+    let s4 = Sphere {
+        center: Vec3(-1.0, 0.0, -1.0),
+        radius: 0.5,
+        material: &metal2
+    };
+
+    let world = [s1, s2, s3, s4];
 
     let camera = Camera::new();
 
