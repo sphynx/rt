@@ -88,7 +88,7 @@ impl Vec3 {
 }
 
 impl Vec3 {
-    pub fn sqrt_coords(&mut self)  {
+    pub fn sqrt_coords(&mut self) {
         self.0 = self.0.sqrt();
         self.1 = self.1.sqrt();
         self.2 = self.2.sqrt();
