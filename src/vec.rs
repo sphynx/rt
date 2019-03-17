@@ -59,10 +59,10 @@ impl Vec3 {
         v.x() * w.x() + v.y() * w.y() + v.z() * w.z()
     }
 
-    pub fn cross(&self, v: &Vec3) -> Vec3 {
-        let x = self.y() * v.z() - self.z() * v.y();
-        let y = -(self.x() * v.z() - self.z() * v.x());
-        let z = self.x() * v.y() - self.y() * v.x();
+    pub fn cross(v: Vec3, w: Vec3) -> Vec3 {
+        let x = v.y() * w.z() - v.z() * w.y();
+        let y = -(v.x() * w.z() - v.z() * w.x());
+        let z = v.x() * w.y() - v.y() * w.x();
         Vec3(x, y, z)
     }
 

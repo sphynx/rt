@@ -76,7 +76,14 @@ fn main() {
     let world = [s1, s2, s3, s4, s5];
 
     let aspect = f64::from(nx) / f64::from(ny);
-    let camera = Camera::new(90.0, aspect);
+
+    let camera = Camera::new(
+        Vec3(-2.0, 2.0, 1.0),
+        Vec3(0.0, 0.0, -1.0),
+        Vec3(0.0, 1.0, 0.0),
+        90.0,
+        aspect,
+    );
 
     for j in (0..ny).rev() {
         for i in 0..nx {
