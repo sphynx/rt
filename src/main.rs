@@ -75,22 +75,22 @@ fn main() {
 
     let world = [s1, s2, s3, s4, s5];
 
-    let aspect = nx as f64 / ny as f64;
+    let aspect = f64::from(nx) / f64::from(ny);
     let camera = Camera::new(90.0, aspect);
 
-    for j in (0..=ny - 1).rev() {
+    for j in (0..ny).rev() {
         for i in 0..nx {
             let mut col = Vec3::zero();
 
             // Antialiasing by averaging of random samples.
             for _ in 0..ns {
-                let u = (i as f64 + rng.gen::<f64>()) / nx as f64;
-                let v = (j as f64 + rng.gen::<f64>()) / ny as f64;
+                let u = (f64::from(i) + rng.gen::<f64>()) / f64::from(nx);
+                let v = (f64::from(j) + rng.gen::<f64>()) / f64::from(ny);
                 let r = camera.get_ray(u, v);
                 col += color(&r, &world[..], 0);
             }
 
-            col /= ns as f64;
+            col /= f64::from(ns);
             col.sqrt_coords(); // Basic gamma correction.
             col *= 255.99;
 
