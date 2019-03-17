@@ -37,16 +37,10 @@ fn main() {
 
     println!("P3 {} {} 255", nx, ny);
 
-    let lambertian1 = Lambertian {
-        albedo: Vec3(0.8, 0.3, 0.3),
-    };
-
-    let lambertian2 = Lambertian {
-        albedo: Vec3(0.8, 0.8, 0.0),
-    };
-
+    let lambertian1 = Lambertian::new(Vec3(0.1, 0.2, 0.5));
+    let lambertian2 = Lambertian::new(Vec3(0.8, 0.8, 0.0));
     let metal1 = Metal::new(Vec3(0.8, 0.6, 0.2), 0.0);
-    let metal2 = Metal::new(Vec3(0.8, 0.8, 0.8), 0.0);
+    let diel1 = Dielectric::new(1.5);
 
     // Describe the world.
     let s1 = Sphere {
@@ -70,10 +64,16 @@ fn main() {
     let s4 = Sphere {
         center: Vec3(-1.0, 0.0, -1.0),
         radius: 0.5,
-        material: &metal2,
+        material: &diel1,
     };
 
-    let world = [s1, s2, s3, s4];
+    let s5 = Sphere {
+        center: Vec3(-1.0, 0.0, -1.0),
+        radius: -0.45,
+        material: &diel1,
+    };
+
+    let world = [s1, s2, s3, s4, s5];
 
     let camera = Camera::new();
 
