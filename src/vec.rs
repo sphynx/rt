@@ -59,6 +59,7 @@ impl Vec3 {
         v.x() * w.x() + v.y() * w.y() + v.z() * w.z()
     }
 
+    #[allow(clippy::many_single_char_names)]
     pub fn cross(v: Vec3, w: Vec3) -> Vec3 {
         let x = v.y() * w.z() - v.z() * w.y();
         let y = -(v.x() * w.z() - v.z() * w.x());

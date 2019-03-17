@@ -40,6 +40,8 @@ impl Camera {
         }
     }
 
+    /// Calculates the ray to a particular point on the camera matrix,
+    /// specified by (u, v) coordinates.
     pub fn get_ray(&self, u: f64, v: f64) -> Ray {
         Ray::new(
             self.origin,

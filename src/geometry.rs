@@ -42,8 +42,10 @@ impl Ray {
         self.to
     }
 
-    pub fn point_at_parameter(&self, b: Elem) -> Vec3 {
-        self.from + b * self.to
+    /// Returns a point corresponding to parameter `t`. Calculated as
+    /// `from + t * to`.
+    pub fn point_at_parameter(&self, t: Elem) -> Vec3 {
+        self.from + t * self.to
     }
 }
 
