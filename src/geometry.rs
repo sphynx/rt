@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use crate::vec::*;
 use crate::material::*;
 
@@ -8,7 +9,7 @@ pub trait Hitable {
 
 /// Packs together all the details of a ray hitting an object at
 /// particular moment of space and time.
-pub struct HitRecord<'a> {
+pub struct HitRecord {
     /// Time, i.e. 't' parameter value when we hit an object.
     pub time: Elem,
 
@@ -19,7 +20,7 @@ pub struct HitRecord<'a> {
     pub normal: Vec3,
 
     /// Reference to material at hit point.
-    pub material: &'a dyn Material,
+    pub material: Rc<dyn Material>,
 }
 
 /// Defines a ray of light by using origin (a point) and a direction
@@ -50,13 +51,13 @@ impl Ray {
 }
 
 /// Sphere object (has center, radius and material).
-pub struct Sphere<'a> {
+pub struct Sphere {
     pub center: Vec3,
     pub radius: Elem,
-    pub material: &'a dyn Material,
+    pub material: Rc<dyn Material>,
 }
 
-impl<'a> Hitable for Sphere<'a> {
+impl Hitable for Sphere {
     fn hit(&self, ray: &Ray, t_min: Elem, t_max: Elem) -> Option<HitRecord> {
         let oc = ray.origin() - self.center;
         let dir = ray.direction();
@@ -73,7 +74,7 @@ impl<'a> Hitable for Sphere<'a> {
                     time: t,
                     point: p,
                     normal: (p - self.center) / self.radius,
-                    material: self.material,
+                    material: Rc::clone(&self.material),
                 })
             };
 
