@@ -24,7 +24,7 @@ impl Lambertian {
     /// Takes `albedo` parameter which in fact defines object's own
     /// color. Hitting rays will be attenuated based on this
     /// parameter.
-    pub fn new(albedo: Vec3) -> Lambertian {
+    pub fn new(albedo: Vec3) -> Self {
         Lambertian { albedo }
     }
 }
@@ -50,7 +50,7 @@ impl Metal {
     /// Albedo and fuzzing parameters. Fuzzing determines amount of
     /// randomization of the reflection (0 - no randomization, 1 -
     /// maximum allowed randomization).
-    pub fn new(albedo: Vec3, fuzz: Elem) -> Metal {
+    pub fn new(albedo: Vec3, fuzz: Elem) -> Self {
         Metal {
             albedo,
             fuzz: if fuzz > 1.0 { 1.0 } else { fuzz },

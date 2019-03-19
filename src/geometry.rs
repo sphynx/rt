@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 use crate::vec::*;
 use crate::material::*;
 
@@ -20,7 +20,7 @@ pub struct HitRecord {
     pub normal: Vec3,
 
     /// Reference to material at hit point.
-    pub material: Rc<dyn Material>,
+    pub material: Arc<dyn Material + Send>,
 }
 
 /// Defines a ray of light by using origin (a point) and a direction
@@ -54,7 +54,7 @@ impl Ray {
 pub struct Sphere {
     pub center: Vec3,
     pub radius: Elem,
-    pub material: Rc<dyn Material>,
+    pub material: Arc<dyn Material + Send>,
 }
 
 impl Hitable for Sphere {
@@ -74,7 +74,7 @@ impl Hitable for Sphere {
                     time: t,
                     point: p,
                     normal: (p - self.center) / self.radius,
-                    material: Rc::clone(&self.material),
+                    material: Arc::clone(&self.material),
                 })
             };
 

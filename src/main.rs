@@ -2,10 +2,11 @@
 //! Weekend".
 
 use rand::prelude::*;
+use rayon::prelude::*;
 use rt::MaterialResponse::*;
 use rt::*;
 use std::f32;
-use std::rc::Rc;
+use std::sync::Arc;
 
 fn color<T: Hitable + ?Sized>(ray: &Ray, world: &T, depth: u32) -> Vec3 {
     if let Some(hit) = world.hit(ray, 0.001, f32::MAX) {
@@ -34,7 +35,7 @@ fn random_scene() -> Vec<Sphere> {
     scene.push(Sphere {
         center: Vec3(0.0, -1000.0, 0.0),
         radius: 1000.0,
-        material: Rc::new(Lambertian::new(Vec3(0.5, 0.5, 0.5))),
+        material: Arc::new(Lambertian::new(Vec3(0.5, 0.5, 0.5))),
     });
 
     let mut rng = rand::thread_rng();
@@ -44,11 +45,11 @@ fn random_scene() -> Vec<Sphere> {
             let mut rnd = || rng.gen::<f32>();
             let center = Vec3(f32::from(a) + 0.9 * rnd(), 0.2, f32::from(b) + 0.9 * rnd());
             if (center - Vec3(4.0, 0.2, 0.0)).length() > 0.9 {
-                let material: Rc<dyn Material>;
+                let material: Arc<dyn Material>;
                 if choose_mat < 0.8 {
                     // Diffuse.
                     let albedo = Vec3(rnd() * rnd(), rnd() * rnd(), rnd() * rnd());
-                    material = Rc::new(Lambertian::new(albedo));
+                    material = Arc::new(Lambertian::new(albedo));
                 } else if choose_mat < 0.95 {
                     // Metal.
                     let albedo = Vec3(
@@ -57,11 +58,11 @@ fn random_scene() -> Vec<Sphere> {
                         0.5 * (1.0 + rnd()),
                     );
                     let fuzz = 0.5 * rnd();
-                    material = Rc::new(Metal::new(albedo, fuzz));
+                    material = Arc::new(Metal::new(albedo, fuzz));
                 } else {
                     // Glass.
                     let refr_index = 1.5;
-                    material = Rc::new(Dielectric::new(refr_index));
+                    material = Arc::new(Dielectric::new(refr_index));
                 }
 
                 scene.push(Sphere {
@@ -76,26 +77,25 @@ fn random_scene() -> Vec<Sphere> {
     scene.push(Sphere {
         center: Vec3(0.0, 1.0, 0.0),
         radius: 1.0,
-        material: Rc::new(Dielectric::new(1.5)),
+        material: Arc::new(Dielectric::new(1.5)),
     });
 
     scene.push(Sphere {
         center: Vec3(-4.0, 1.0, 0.0),
         radius: 1.0,
-        material: Rc::new(Lambertian::new(Vec3(0.4, 0.2, 0.1))),
+        material: Arc::new(Lambertian::new(Vec3(0.4, 0.2, 0.1))),
     });
 
     scene.push(Sphere {
         center: Vec3(4.0, 1.0, 0.0),
         radius: 1.0,
-        material: Rc::new(Metal::new(Vec3(0.7, 0.6, 0.5), 0.0)),
+        material: Arc::new(Metal::new(Vec3(0.7, 0.6, 0.5), 0.0)),
     });
 
     scene
 }
 
 fn main() {
-    let mut rng = rand::thread_rng();
 
     let nx = 600_i16;
     let ny = 400_i16;
@@ -115,10 +115,12 @@ fn main() {
         v_fov: 20.0,
         aspect,
         aperture: 0.1,
-        focus_dist: 10.0
+        focus_dist: 10.0,
     });
 
-    for j in (0..ny).rev() {
+    // for j in (0..ny).rev() {
+    (0..ny).into_par_iter().for_each(|j| {
+        let mut rng = rand::thread_rng();
         for i in 0..nx {
             let mut col = Vec3::zero();
 
@@ -136,5 +138,6 @@ fn main() {
 
             println!("{} {} {}", col.r() as u32, col.g() as u32, col.b() as u32);
         }
-    }
+    });
+    // }
 }
