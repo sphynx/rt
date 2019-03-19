@@ -96,10 +96,9 @@ fn random_scene() -> Vec<Sphere> {
 }
 
 fn main() {
-
-    let nx = 600_i16;
-    let ny = 400_i16;
-    let ns = 10_i16;
+    let nx = 1200_i16;
+    let ny = 800_i16;
+    let ns = 20_i16;
 
     println!("P3 {} {} 255", nx, ny);
 
@@ -118,26 +117,36 @@ fn main() {
         focus_dist: 10.0,
     });
 
-    // for j in (0..ny).rev() {
-    (0..ny).into_par_iter().for_each(|j| {
-        let mut rng = rand::thread_rng();
-        for i in 0..nx {
-            let mut col = Vec3::zero();
+    let rows: Vec<Vec<Vec3>> = (0..ny)
+        .into_par_iter()
+        .rev()
+        .map(|j| {
+            (0..nx)
+                .into_par_iter()
+                .map(|i| {
+                    let mut rng = rand::thread_rng();
+                    let mut pixel_color = Vec3::zero();
 
-            // Antialiasing by averaging of random samples.
-            for _ in 0..ns {
-                let u = (f32::from(i) + rng.gen::<f32>()) / f32::from(nx);
-                let v = (f32::from(j) + rng.gen::<f32>()) / f32::from(ny);
-                let r = camera.get_ray(u, v);
-                col += color(&r, &world[..], 0);
-            }
+                    // Antialiasing by averaging of random samples.
+                    for _ in 0..ns {
+                        let u = (f32::from(i) + rng.gen::<f32>()) / f32::from(nx);
+                        let v = (f32::from(j) + rng.gen::<f32>()) / f32::from(ny);
+                        let r = camera.get_ray(u, v);
+                        pixel_color += color(&r, &world[..], 0);
+                    }
 
-            col /= f32::from(ns);
-            col.sqrt_coords(); // Basic gamma correction.
-            col *= 255.99;
+                    pixel_color /= f32::from(ns);
+                    pixel_color.sqrt_coords(); // Basic gamma correction.
+                    pixel_color *= 255.99;
+                    pixel_color
+                })
+                .collect()
+        })
+        .collect();
 
+    for r in rows {
+        for col in r {
             println!("{} {} {}", col.r() as u32, col.g() as u32, col.b() as u32);
         }
-    });
-    // }
+    }
 }
