@@ -45,7 +45,7 @@ fn random_scene() -> Vec<Sphere> {
             let mut rnd = || rng.gen::<f32>();
             let center = Vec3(f32::from(a) + 0.9 * rnd(), 0.2, f32::from(b) + 0.9 * rnd());
             if (center - Vec3(4.0, 0.2, 0.0)).length() > 0.9 {
-                let material: Arc<dyn Material>;
+                let material: Arc<dyn Material + Send + Sync>;
                 if choose_mat < 0.8 {
                     // Diffuse.
                     let albedo = Vec3(rnd() * rnd(), rnd() * rnd(), rnd() * rnd());

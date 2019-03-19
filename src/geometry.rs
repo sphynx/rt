@@ -20,7 +20,7 @@ pub struct HitRecord {
     pub normal: Vec3,
 
     /// Reference to material at hit point.
-    pub material: Arc<dyn Material + Send>,
+    pub material: Arc<dyn Material + Send + Sync>,
 }
 
 /// Defines a ray of light by using origin (a point) and a direction
@@ -54,7 +54,7 @@ impl Ray {
 pub struct Sphere {
     pub center: Vec3,
     pub radius: Elem,
-    pub material: Arc<dyn Material + Send>,
+    pub material: Arc<dyn Material + Send + Sync>,
 }
 
 impl Hitable for Sphere {
