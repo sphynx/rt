@@ -1,7 +1,7 @@
 use crate::geometry::*;
 use crate::vec::*;
 use rand::prelude::*;
-use std::f64::consts::PI;
+use std::f32::consts::PI;
 
 /// Defines the screen on which scene is projected and the origin
 /// (i.e. the point of view).
@@ -58,7 +58,7 @@ impl Camera {
 
     /// Calculates the ray to a particular point on the camera matrix,
     /// specified by (s, t) coordinates.
-    pub fn get_ray(&self, s: f64, t: f64) -> Ray {
+    pub fn get_ray(&self, s: Elem, t: Elem) -> Ray {
         let rd = self.lens_radius * random_in_unit_disk();
         let offset = self.u * rd.x() + self.v * rd.y();
         Ray::new(

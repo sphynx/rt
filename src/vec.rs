@@ -1,7 +1,7 @@
 use std::ops::*;
 
-/// Type of vector elements (currently it's f64).
-pub type Elem = f64;
+/// Type of vector elements (currently it's f32).
+pub type Elem = f32;
 
 /// 3D vector.
 #[derive(Debug, Copy, Clone, PartialEq)]

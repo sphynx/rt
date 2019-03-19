@@ -4,11 +4,11 @@
 use rand::prelude::*;
 use rt::MaterialResponse::*;
 use rt::*;
-use std::f64;
+use std::f32;
 use std::rc::Rc;
 
 fn color<T: Hitable + ?Sized>(ray: &Ray, world: &T, depth: u32) -> Vec3 {
-    if let Some(hit) = world.hit(ray, 0.001, f64::MAX) {
+    if let Some(hit) = world.hit(ray, 0.001, f32::MAX) {
         if depth < 50 {
             match hit.material.scatter(ray, &hit) {
                 Absorbed => Vec3::zero(),
@@ -38,11 +38,11 @@ fn random_scene() -> Vec<Sphere> {
     });
 
     let mut rng = rand::thread_rng();
-    for a in -11..11 {
-        for b in -11..11 {
-            let choose_mat: f64 = rng.gen();
-            let mut rnd = || rng.gen::<f64>();
-            let center = Vec3(f64::from(a) + 0.9 * rnd(), 0.2, f64::from(b) + 0.9 * rnd());
+    for a in -11..11_i16 {
+        for b in -11..11_i16 {
+            let choose_mat: f32 = rng.gen();
+            let mut rnd = || rng.gen::<f32>();
+            let center = Vec3(f32::from(a) + 0.9 * rnd(), 0.2, f32::from(b) + 0.9 * rnd());
             if (center - Vec3(4.0, 0.2, 0.0)).length() > 0.9 {
                 let material: Rc<dyn Material>;
                 if choose_mat < 0.8 {
@@ -97,15 +97,15 @@ fn random_scene() -> Vec<Sphere> {
 fn main() {
     let mut rng = rand::thread_rng();
 
-    let nx = 1200;
-    let ny = 800;
-    let ns = 10;
+    let nx = 600_i16;
+    let ny = 400_i16;
+    let ns = 10_i16;
 
     println!("P3 {} {} 255", nx, ny);
 
     let world = random_scene();
 
-    let aspect = f64::from(nx) / f64::from(ny);
+    let aspect = f32::from(nx) / f32::from(ny);
     let look_from = Vec3(13.0, 2.0, 3.0);
     let look_at = Vec3(0.0, 0.0, 0.0);
     let camera = Camera::new(CameraSettings {
@@ -124,13 +124,13 @@ fn main() {
 
             // Antialiasing by averaging of random samples.
             for _ in 0..ns {
-                let u = (f64::from(i) + rng.gen::<f64>()) / f64::from(nx);
-                let v = (f64::from(j) + rng.gen::<f64>()) / f64::from(ny);
+                let u = (f32::from(i) + rng.gen::<f32>()) / f32::from(nx);
+                let v = (f32::from(j) + rng.gen::<f32>()) / f32::from(ny);
                 let r = camera.get_ray(u, v);
                 col += color(&r, &world[..], 0);
             }
 
-            col /= f64::from(ns);
+            col /= f32::from(ns);
             col.sqrt_coords(); // Basic gamma correction.
             col *= 255.99;
 
